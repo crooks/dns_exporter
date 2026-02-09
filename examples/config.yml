@@ -1,0 +1,8 @@
+---
+logging:
+  level: debug
+default_ns: 8.8.4.4
+resolve:
+  google.co.uk:
+    nameserver: 81.187.219.204:53
+  fleegle.mixmin.net:
