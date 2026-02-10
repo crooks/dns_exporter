@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"strings"
 	"time"
 
 	"codeberg.org/miekg/dns"
@@ -41,17 +40,9 @@ func dnsALookup(nameServer, hostName string) (result LookupResult, err error) {
 	return
 }
 
-func addDNSPort(hostname string) string {
-	colonTest := strings.Split(hostname, ":")
-	if len(colonTest) == 1 {
-		return hostname + ":53"
-	}
-	return hostname
-}
-
 func iterDomains() {
 	for dom, params := range cfg.Resolve {
-		ns := addDNSPort(params.Nameserver)
+		ns := params.Nameserver
 		result, err := dnsALookup(ns, dom)
 		if err != nil {
 			log.Warnf("Lookup Error for %s: %v", dom, err)

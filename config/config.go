@@ -3,6 +3,7 @@ package config
 import (
 	"flag"
 	"os"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -31,6 +32,14 @@ type Config struct {
 	Resolve   map[string]ResolveItem `yaml:"resolve"`
 }
 
+func addDNSPort(hostname string) string {
+	colonTest := strings.Split(hostname, ":")
+	if len(colonTest) == 1 {
+		return hostname + ":53"
+	}
+	return hostname
+}
+
 // ParseConfig imports a yaml formatted config file into a Config struct
 func ParseConfig(filename string) (*Config, error) {
 	file, err := os.Open(filename)
@@ -46,14 +55,18 @@ func ParseConfig(filename string) (*Config, error) {
 	}
 	// If no default nameserver is specified, use one of Google's
 	if config.DefaultNS == "" {
-		config.DefaultNS = "8.8.8.8"
+		config.DefaultNS = "8.8.8.8:53"
 	}
-	// For configured domains with no specified nameserver, set them to the default
+	// Ensure the defaultNS option has a port number
+	config.DefaultNS = addDNSPort(config.DefaultNS)
+	// Ensure all the configured resolvers contain sufficient information
+	// TODO: Validate IP address syntax
 	for k, items := range config.Resolve {
 		if items.Nameserver == "" {
 			items.Nameserver = config.DefaultNS
-			config.Resolve[k] = items
 		}
+		items.Nameserver = addDNSPort(items.Nameserver)
+		config.Resolve[k] = items
 	}
 	return config, nil
 }
