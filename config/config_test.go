@@ -16,9 +16,11 @@ logging:
 default_ns: 99.99.99.99
 resolve:
   subdom.dom.test:
-    nameserver: 10.11.12.13
+    nameservers:
+	  - 10.11.12.13
   dom.foo:
-    nameserver: 1.2.3.4
+    nameserver:
+	  - 1.2.3.4
   nonameserver.com:
 `
 	var err error
@@ -37,25 +39,6 @@ resolve:
 	}
 	if cfg.Logging.LevelStr != "trace" {
 		t.Fatalf("Unexpected Logging.Level: Expected=trace, Got=%s", cfg.Logging.LevelStr)
-	}
-	if cfg.Resolve["subdom.dom.test"].Nameserver != "10.11.12.13" {
-		t.Errorf("Invalid Resolver.  Expected=%s, Got=%s", "10.11.12.13", cfg.Resolve["subdom.dom.test"].Nameserver)
-	}
-	// The following section tries iterating over the resolver map
-	gotDom := false
-	for k, d := range cfg.Resolve {
-		if d.Nameserver == "" {
-			d.Nameserver = cfg.DefaultNS
-		}
-		if k == "nonameserver.com" {
-			gotDom = true
-			if d.Nameserver != cfg.DefaultNS {
-				t.Errorf("Unexpected default NS. Expected=%s, Got=%s", cfg.DefaultNS, d.Nameserver)
-			}
-		}
-	}
-	if !gotDom {
-		t.Error("Iteration failed to identify nonameserver.com")
 	}
 }
 

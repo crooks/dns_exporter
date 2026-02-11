@@ -15,7 +15,7 @@ type Flags struct {
 }
 
 type ResolveItem struct {
-	Nameserver string `yaml:"nameserver"`
+	Nameservers []string `yaml:"nameservers"`
 }
 
 // Config contains the njmon_exporter configuration data
@@ -68,10 +68,9 @@ func ParseConfig(filename string) (*Config, error) {
 	// Ensure all the configured resolvers contain sufficient information
 	// TODO: Validate IP address syntax
 	for k, items := range config.Resolve {
-		if items.Nameserver == "" {
-			items.Nameserver = config.DefaultNS
+		for n := range items.Nameservers {
+			items.Nameservers[n] = addDNSPort(items.Nameservers[n])
 		}
-		items.Nameserver = addDNSPort(items.Nameserver)
 		config.Resolve[k] = items
 	}
 	return config, nil

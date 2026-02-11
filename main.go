@@ -48,25 +48,26 @@ func dnsALookup(nameServer, hostName string) (result LookupResult, err error) {
 
 func iterDomains() {
 	for dom, params := range cfg.Resolve {
-		ns := params.Nameserver
-		result, err := dnsALookup(ns, dom)
-		if err != nil {
-			log.Warnf("Lookup Error for %s: %v", dom, err)
-			prom.resolverResponse.WithLabelValues(ns).Set(0)
-			continue
-		}
-		log.Debugf("Nameserver %s responded with RTT: %fs", ns, result.Rtt.Seconds())
-		prom.resolverResponse.WithLabelValues(ns).Set(1)
-		prom.resolverRTT.WithLabelValues(ns).Set(result.Rtt.Seconds())
-		// Record a success here for the nameserver.  No error so it has responded.
-		if result.Success {
-			log.Debugf("Lookup of %s at %s successful", dom, ns)
-			prom.lookupSuccess.WithLabelValues(ns, dom).Set(1)
-		} else {
-			log.Infof("Lookup of %s returned no answers", dom)
-		}
-		prom.lookupNumAnswers.WithLabelValues(ns, dom).Set(float64(result.NumAnswers))
-	}
+		for _, ns := range params.Nameservers {
+			result, err := dnsALookup(ns, dom)
+			if err != nil {
+				log.Warnf("Lookup Error for %s: %v", dom, err)
+				prom.resolverResponse.WithLabelValues(ns).Set(0)
+				continue
+			}
+			log.Debugf("Nameserver %s responded with RTT: %fs", ns, result.Rtt.Seconds())
+			prom.resolverResponse.WithLabelValues(ns).Set(1)
+			prom.resolverRTT.WithLabelValues(ns).Set(result.Rtt.Seconds())
+			// Record a success here for the nameserver.  No error so it has responded.
+			if result.Success {
+				log.Debugf("Lookup of %s at %s successful", dom, ns)
+				prom.lookupSuccess.WithLabelValues(ns, dom).Set(1)
+			} else {
+				log.Infof("Lookup of %s returned no answers", dom)
+			}
+			prom.lookupNumAnswers.WithLabelValues(ns, dom).Set(float64(result.NumAnswers))
+		} // End of Nameservers loop
+	} // End of Domains loop
 }
 
 func parseLoop() {

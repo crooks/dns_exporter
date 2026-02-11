@@ -4,8 +4,11 @@ logging:
 default_ns: 8.8.4.4
 resolve:
   google.co.uk:
-    nameserver: 81.187.219.204:53
+    nameservers:
+      - 81.187.219.204:53
+      - 81.187.219.202:53
   fleegle.mixmin.net:
   unregistered.nonesense:
   google.com:
-    nameserver: 11.12.13.14
+    nameservers:
+      - 11.12.13.14
