@@ -68,6 +68,7 @@ func iterDomains() {
 				prom.lookupSuccess.WithLabelValues(ns, dom).Set(1)
 			} else {
 				log.Infof("Lookup of %s returned no answers", dom)
+				prom.lookupSuccess.WithLabelValues(ns, dom).Set(0)
 			}
 			prom.lookupNumAnswers.WithLabelValues(ns, dom).Set(float64(result.NumAnswers))
 		} // End of Nameservers loop
