@@ -26,7 +26,7 @@ type Config struct {
 	} `yaml:"logging"`
 	Exporter struct {
 		Address string `yaml:"address"`
-		Port    string `yaml:"port"`
+		Port    int    `yaml:"port"`
 	} `yaml:"exporter"`
 	DefaultNS string                 `yaml:"default_ns"`
 	Resolve   map[string]ResolveItem `yaml:"resolve"`
@@ -52,6 +52,12 @@ func ParseConfig(filename string) (*Config, error) {
 	d := yaml.NewDecoder(file)
 	if err := d.Decode(&config); err != nil {
 		return nil, err
+	}
+	if config.Exporter.Address == "" {
+		config.Exporter.Address = "0.0.0.0"
+	}
+	if config.Exporter.Port == 0 {
+		config.Exporter.Port = 9117
 	}
 	// If no default nameserver is specified, use one of Google's
 	if config.DefaultNS == "" {
