@@ -19,12 +19,14 @@ var (
 	prom  *prometheusMetrics
 )
 
+// LookupResult is the struct returned by each DNS lookup operation
 type LookupResult struct {
 	Success    bool
 	NumAnswers int
 	Rtt        time.Duration // rtt = Round-trip time
 }
 
+// dnsALookup performs a lookup for a given domain at a list of Nameservers
 func dnsALookup(nameServer, hostName string) (result LookupResult, err error) {
 	m := dns.NewMsg(hostName, dns.TypeA)
 	m.ID = dns.ID()
@@ -46,6 +48,8 @@ func dnsALookup(nameServer, hostName string) (result LookupResult, err error) {
 	return
 }
 
+// iterDomains iterates through a configured list of Domains to lookup.  For each Domain iteration,
+// it iterates through a configured series of Nameservers at which the query should be directed.
 func iterDomains() {
 	for dom, params := range cfg.Resolve {
 		for _, ns := range params.Nameservers {
@@ -70,6 +74,7 @@ func iterDomains() {
 	} // End of Domains loop
 }
 
+// parseLoop performs an endless loop of queries at 60 second intervals.
 func parseLoop() {
 	log.Infof("Beginning iteration over %d domain lookups", len(cfg.Resolve))
 	for {
@@ -78,6 +83,8 @@ func parseLoop() {
 	}
 }
 
+// initServer triggers the DNS parsing process and starts the HTTP Server that will listen for
+// incoming scrape requests.
 func initServer() {
 	go parseLoop()
 	http.Handle("/metrics", promhttp.Handler())

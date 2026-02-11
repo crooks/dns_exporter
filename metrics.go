@@ -17,10 +17,12 @@ type prometheusMetrics struct {
 	lookupNumAnswers *prometheus.GaugeVec
 }
 
+// addPrefix prepends a constant metric prefix to the name of each metric.
 func addPrefix(s string) string {
 	return fmt.Sprintf("%s_%s", prefix, s)
 }
 
+// initMetrics initialises all the metrics that will be exposed for scraping.
 func initMetrics() *prometheusMetrics {
 	defaultLabels := []string{"nameserver"}
 	dns := new(prometheusMetrics)
