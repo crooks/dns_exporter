@@ -21,9 +21,10 @@ var (
 
 // LookupResult is the struct returned by each DNS lookup operation
 type LookupResult struct {
-	Success    bool
-	NumAnswers int
-	Rtt        time.Duration // rtt = Round-trip time
+	Success         bool
+	NumAnswersA     int
+	NumAnswersCNAME int
+	Rtt             time.Duration // rtt = Round-trip time
 }
 
 // dnsALookup performs a lookup for a given domain at a list of Nameservers
@@ -38,13 +39,18 @@ func dnsALookup(nameServer, hostName string) (result LookupResult, err error) {
 		return
 	}
 	result.Rtt = rtt
-	result.NumAnswers = len(r.Answer)
 
-	//if t, ok := r.Answer[0].(*dns.A); ok {
-	if len(r.Answer) == 0 {
-		return
+	for _, answer := range r.Answer {
+		_, rrA := answer.(*dns.A)
+		if rrA {
+			result.Success = true
+			result.NumAnswersA++
+		}
+		_, rrCNAME := answer.(*dns.CNAME)
+		if rrCNAME {
+			result.NumAnswersCNAME++
+		}
 	}
-	result.Success = true
 	return
 }
 
@@ -70,7 +76,8 @@ func iterDomains() {
 				log.Infof("Lookup of %s returned no answers", dom)
 				prom.lookupSuccess.WithLabelValues(ns, dom).Set(0)
 			}
-			prom.lookupNumAnswers.WithLabelValues(ns, dom).Set(float64(result.NumAnswers))
+			prom.lookupNumAnswers.WithLabelValues(ns, dom, "A").Set(float64(result.NumAnswersA))
+			prom.lookupNumAnswers.WithLabelValues(ns, dom, "CNAME").Set(float64(result.NumAnswersCNAME))
 		} // End of Nameservers loop
 	} // End of Domains loop
 }

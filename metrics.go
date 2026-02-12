@@ -32,7 +32,7 @@ func initMetrics() *prometheusMetrics {
 			Name: addPrefix("lookup_num_answers"),
 			Help: "The number of DNS Answers received for a given lookup.",
 		},
-		append(defaultLabels, "domain"),
+		append(defaultLabels, "domain", "rrtype"),
 	)
 	prometheus.MustRegister(dns.lookupNumAnswers)
 

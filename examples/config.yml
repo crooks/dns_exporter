@@ -3,6 +3,9 @@ logging:
   level: debug
 default_ns: 8.8.4.4
 resolve:
+  eu-west-2.console.aws.amazon.com:
+    nameservers:
+      - 8.8.8.8:53
   google.co.uk:
     nameservers:
       - 81.187.219.204:53
