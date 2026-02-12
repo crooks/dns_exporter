@@ -41,13 +41,12 @@ func dnsALookup(nameServer, hostName string) (result LookupResult, err error) {
 	result.Rtt = rtt
 
 	for _, answer := range r.Answer {
-		_, rrA := answer.(*dns.A)
-		if rrA {
+		if _, rrA := answer.(*dns.A); rrA {
+			// Only an A record is considered a success
 			result.Success = true
 			result.NumAnswersA++
 		}
-		_, rrCNAME := answer.(*dns.CNAME)
-		if rrCNAME {
+		if _, rrCNAME := answer.(*dns.CNAME); rrCNAME {
 			result.NumAnswersCNAME++
 		}
 	}
