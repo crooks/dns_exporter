@@ -44,7 +44,7 @@ resolve:
 
 func TestFlags(t *testing.T) {
 	f := ParseFlags()
-	expectingConfig := "njmon_exporter.yml"
+	expectingConfig := "config.yml"
 	if f.Config != expectingConfig {
 		t.Fatalf("Unexpected config flag: Expected=%s, Got=%s", expectingConfig, f.Config)
 	}
