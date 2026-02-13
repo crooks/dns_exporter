@@ -17,10 +17,10 @@ default_ns: 99.99.99.99
 resolve:
   subdom.dom.test:
     nameservers:
-	  - 10.11.12.13
+      - 10.11.12.13
   dom.foo:
     nameserver:
-	  - 1.2.3.4
+      - 1.2.3.4
   nonameserver.com:
 `
 	var err error
