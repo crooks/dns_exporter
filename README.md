@@ -137,8 +137,7 @@ spec:
         app: dnsexporter
     spec:
       containers:
-        -
-          image: ghcr.io/crooks/dns_exporter:main
+        - image: ghcr.io/crooks/dns_exporter:main
           imagePullPolicy: Always
           livenessProbe:
             exec:
@@ -165,8 +164,8 @@ spec:
           volumeMounts:
             - mountPath: /app/config.yml
               name: config
-              subPath: config.yml
               readOnly: true
+              subPath: config.yml
       restartPolicy: Always
       volumes:
         - configMap:
@@ -175,6 +174,7 @@ spec:
 ```
 2. Create a service:
 ```yaml
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -207,6 +207,7 @@ spec:
 ```
 4. Create a configmap for the `config.yml` file:
 ```yaml
+---
 apiVersion: v1
 data:
   config.yml: |
@@ -231,6 +232,5 @@ kind: ConfigMap
 metadata:
   creationTimestamp: null
   name: config
-
 ```
 
