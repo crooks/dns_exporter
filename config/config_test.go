@@ -10,7 +10,7 @@ func TestConfig(t *testing.T) {
 	testCfg := `---
 exporter:
   address: 127.0.0.1
-  port: 9012
+  port: 9117
 logging:
   level: trace
 default_ns: 99.99.99.99
@@ -31,8 +31,8 @@ resolve:
 	if cfg.Exporter.Address != "127.0.0.1" {
 		t.Fatalf("Expected=127.0.0.1, Got=%s", cfg.Exporter.Address)
 	}
-	if cfg.Exporter.Port != 9012 {
-		t.Fatalf("Expected=9012, Got=%d", cfg.Exporter.Port)
+	if cfg.Exporter.Port != 9117 {
+		t.Fatalf("Expected=9117, Got=%d", cfg.Exporter.Port)
 	}
 	if cfg.Logging.Journal {
 		t.Fatal("Expected Logging.Journal to be False")
