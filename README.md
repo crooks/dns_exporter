@@ -20,6 +20,7 @@ podman build --tag dns_exporter:latest --file Dockerfile .
 
 ## Go
 ```bash
+go mod download
 go build
 ```
 
