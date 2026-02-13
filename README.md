@@ -41,7 +41,7 @@ docker run --detach --name dns_exporter --publish 0.0.0.0:9117:9117 ghcr.io/croo
 ```
 
 ```bash
-podman run --detach --name dns_exporter --publish 0.0.0.0:9117:9117 ghcr.io/dns_exporter:main
+podman run --detach --name dns_exporter --publish 0.0.0.0:9117:9117 ghcr.io/crooks/dns_exporter:main
 ```
 
 ## Linux systemd
