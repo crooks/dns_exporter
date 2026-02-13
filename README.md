@@ -133,7 +133,7 @@ spec:
   template:
     metadata:
       labels:
-        app: postgres
+        app: dnsexporter
     spec:
       containers:
         -
