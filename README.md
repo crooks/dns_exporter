@@ -53,11 +53,11 @@ version: 3
 services:
   dns_exporter:
     name: dns_exporter
-    publish:
-      - 0.0.0.0:9117:9117
+    ports:
+      - 127.0.0.1:9117:9117
     image: ghcr.io/crooks/dns_exporter:main
     volumes:
-      - config.yml:/app/config.yml
+      - ./config.yml:/app/config.yml
 ```
 2. Run with either `podman-compose` or `docker compose`:
 ```bash
