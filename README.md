@@ -73,7 +73,7 @@ podman-compose -f compose.yml up -d
 As root or prefixing all commands with `sudo`:
 
 1. Copy the binary from the build or extract it from the container image to `/usr/local/bin/dns_exporter`
-1. Add a new user to run the exporter: `useradd --shell /bin/false --user-group --no-create-home --comment "dns_exporter user"`
+1. Add a new user to run the exporter: `useradd --shell /bin/false --user-group --no-create-home --comment "dns_exporter user" dns_exporter`
 1. Create with appropriate permissions `install --mode 700 --directory --owner dns_exporter --group dns_exporter /etc/dns_exporter/`
 1. Copy and update the `examples/config.yml` file to `/etc/dns_exporter`: `install --mode 600 --owner dns_exporter --group dns_exporter examples/config.yml /etc/dns_exporter`
 1. Create `/etc/systemd/system/dns_exporter.service` with contents:
