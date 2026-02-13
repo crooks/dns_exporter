@@ -44,6 +44,29 @@ docker run --detach --name dns_exporter --publish 0.0.0.0:9117:9117 ghcr.io/croo
 podman run --detach --name dns_exporter --publish 0.0.0.0:9117:9117 ghcr.io/crooks/dns_exporter:main
 ```
 
+## Docker compose
+1. Create a `compose.yml` file:
+```yaml
+---
+version: 3
+services:
+  dns_exporter:
+    name: dns_exporter
+    publish:
+      - 0.0.0.0:9117:9117
+    image: ghcr.io/crooks/dns_exporter:main
+    volumes:
+      - config.yml:/app/config.yml
+```
+2. Run with either `podman-compose` or `docker compose`:
+```bash
+docker compose -f compose.yml up -d
+```
+
+```bash
+podman-compose -f compose.yml up -d
+```
+
 ## Linux systemd
 
 As root or prefixing all commands with `sudo`:
@@ -87,7 +110,7 @@ StandardOutput=journal
 [Install]
 WantedBy=multi-user.target
 ```
-1. Read the new service: `systemctl daemon-reload`
+6. Read the new service: `systemctl daemon-reload`
 1. Start and enable the service: `systemctl enable --now dns_exporter.service`
 
 You will need to open up port 9117/TCP on your firewall to allow your prometheus server to scrape the metrics. That is left as an exercise for the reader.
@@ -149,7 +172,7 @@ spec:
             name: config
           name: config
 ```
-1. Create a service:
+2. Create a service:
 ```yaml
 apiVersion: v1
 kind: Service
@@ -161,7 +184,7 @@ spec:
   selector:
     app: dnsexporter
 ```
-1. Create an ingress:
+3. Create an ingress:
 ```yaml
 ---
 apiVersion: networking.k8s.io/v1
@@ -181,7 +204,7 @@ spec:
             path: /
             pathType: Prefix
 ```
-1. Create a configmap for the `config.yml` file:
+4. Create a configmap for the `config.yml` file:
 ```yaml
 apiVersion: v1
 data:
