@@ -1,4 +1,4 @@
-FROM docker.io/library/golang:1.26 as builder
+FROM docker.io/library/golang:1.26 AS builder
 
 # Set up the build environment
 WORKDIR /workdir
