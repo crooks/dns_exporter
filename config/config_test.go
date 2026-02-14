@@ -10,17 +10,17 @@ func TestConfig(t *testing.T) {
 	testCfg := `---
 exporter:
   address: 127.0.0.1
-  port: 9012
+  port: 9117
 logging:
   level: trace
 default_ns: 99.99.99.99
 resolve:
   subdom.dom.test:
     nameservers:
-	  - 10.11.12.13
+      - 10.11.12.13
   dom.foo:
     nameserver:
-	  - 1.2.3.4
+      - 1.2.3.4
   nonameserver.com:
 `
 	var err error
@@ -31,8 +31,8 @@ resolve:
 	if cfg.Exporter.Address != "127.0.0.1" {
 		t.Fatalf("Expected=127.0.0.1, Got=%s", cfg.Exporter.Address)
 	}
-	if cfg.Exporter.Port != 9012 {
-		t.Fatalf("Expected=9012, Got=%d", cfg.Exporter.Port)
+	if cfg.Exporter.Port != 9117 {
+		t.Fatalf("Expected=9117, Got=%d", cfg.Exporter.Port)
 	}
 	if cfg.Logging.Journal {
 		t.Fatal("Expected Logging.Journal to be False")
@@ -44,7 +44,7 @@ resolve:
 
 func TestFlags(t *testing.T) {
 	f := ParseFlags()
-	expectingConfig := "njmon_exporter.yml"
+	expectingConfig := "config.yml"
 	if f.Config != expectingConfig {
 		t.Fatalf("Unexpected config flag: Expected=%s, Got=%s", expectingConfig, f.Config)
 	}
