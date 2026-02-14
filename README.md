@@ -29,20 +29,20 @@ go build
 
 ### Local build
 ```bash
-docker run --detach --name dns_exporter --publish 0.0.0.0:9117:9117 localhost/dns_exporter:latest
+docker run --detach --name dns_exporter --publish 127.0.0.1:9117:9117 localhost/dns_exporter:latest
 ```
 
 ```bash
-podman run --detach --name dns_exporter --publish 0.0.0.0:9117:9117 localhost/dns_exporter:latest
+podman run --detach --name dns_exporter --publish 127.0.0.1:9117:9117 localhost/dns_exporter:latest
 ```
 
 ### GitHub Container Registry image
 ```bash
-docker run --detach --name dns_exporter --publish 0.0.0.0:9117:9117 ghcr.io/crooks/dns_exporter:main
+docker run --detach --name dns_exporter --publish 127.0.0.1:9117:9117 ghcr.io/crooks/dns_exporter:main
 ```
 
 ```bash
-podman run --detach --name dns_exporter --publish 0.0.0.0:9117:9117 ghcr.io/crooks/dns_exporter:main
+podman run --detach --name dns_exporter --publish 127.0.0.1:9117:9117 ghcr.io/crooks/dns_exporter:main
 ```
 
 ## Docker compose
