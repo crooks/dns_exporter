@@ -123,18 +123,18 @@ You will need to open up port 9117/TCP on your firewall to allow your prometheus
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: dnsexporter
+  name: dns-exporter
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: dnsexporter
+      app: dns-exporter
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: dnsexporter
+        app: dns-exporter
     spec:
       containers:
         - image: ghcr.io/crooks/dns_exporter:main
@@ -147,7 +147,7 @@ spec:
                 - localhost:9117/metrics
             initialDelaySeconds: 5
             periodSeconds: 10
-          name: dnsexporter
+          name: dns-exporter
           ports:
             - containerPort: 9117
           readinessProbe:
@@ -178,12 +178,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: dnsexporter
+  name: dns-exporter
 spec:
   ports:
     - port: 9117
   selector:
-    app: dnsexporter
+    app: dns-exporter
 ```
 3. Create an ingress:
 ```yaml
@@ -191,15 +191,15 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: dnsexporter
+  name: dns-exporter
 spec:
   rules:
-    - host: dnsexporter.example.com
+    - host: dns-exporter.example.com
       http:
         paths:
           - backend:
               service:
-                name: dnsexporter
+                name: dns-exporter
                 port:
                   number: 80
             path: /
