@@ -2,8 +2,11 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"codeberg.org/miekg/dns"
@@ -19,36 +22,78 @@ var (
 	prom  *prometheusMetrics
 )
 
-// LookupResult is the struct returned by each DNS lookup operation
-type LookupResult struct {
-	Success         bool
-	NumAnswersA     int
-	NumAnswersCNAME int
-	Rtt             time.Duration // rtt = Round-trip time
+type rrAnswer struct {
+	Name  string
+	TTL   int
+	Class string
+	Type  string
+	RData string
+}
+
+func answerFields(answer string) (rr rrAnswer, err error) {
+	fields := strings.Fields(answer)
+	if len(fields) != 5 {
+		err = errors.New("unexpected field count in RR answer")
+		return
+	}
+	rr.Name = fields[0]
+	ttl, err := strconv.Atoi(fields[1])
+	if err != nil {
+		err = errors.New("TTL is not an integer")
+		return
+	}
+	rr.TTL = ttl
+	rr.Class = fields[2]
+	rr.Type = fields[3]
+	rr.RData = fields[4]
+	return
 }
 
 // dnsALookup performs a lookup for a given domain at a list of Nameservers
-func dnsALookup(nameServer, hostName string) (result LookupResult, err error) {
-	m := dns.NewMsg(hostName, dns.TypeA)
+func dnsALookup(nameServer, domain string) (err error) {
+	m := dns.NewMsg(domain, dns.TypeA)
 	m.ID = dns.ID()
 	m.RecursionDesired = true
 
 	c := new(dns.Client)
 	r, rtt, err := c.Exchange(context.TODO(), m, "udp", nameServer)
 	if err != nil {
+		// If the nameserver doesn't respond, both the resolver and the lookup need to be marked as unsuccessful
+		prom.resolverResponse.WithLabelValues(nameServer).Set(0)
+		prom.lookupSuccess.WithLabelValues(nameServer, domain).Set(0)
 		return
 	}
-	result.Rtt = rtt
+	log.Debugf("Nameserver %s responded with RTT: %fs", nameServer, rtt.Seconds())
+	prom.resolverResponse.WithLabelValues(nameServer).Set(1)
+	prom.resolverRTT.WithLabelValues(nameServer).Set(rtt.Seconds())
 
+	var numARecords int
+	var numCNAMERecords int
 	for _, answer := range r.Answer {
+		/*
+			rr, err := answerFields(answer.String())
+			if err != nil {
+				log.Warnf("Unable to decode RR answer: %v", err)
+				continue
+			}
+		*/
 		if _, rrA := answer.(*dns.A); rrA {
 			// Only an A record is considered a success
-			result.Success = true
-			result.NumAnswersA++
+			numARecords++
 		}
 		if _, rrCNAME := answer.(*dns.CNAME); rrCNAME {
-			result.NumAnswersCNAME++
+			numCNAMERecords++
 		}
+	}
+	prom.lookupNumAnswers.WithLabelValues(nameServer, domain, "A").Set(float64(numARecords))
+	prom.lookupNumAnswers.WithLabelValues(nameServer, domain, "CNAME").Set(float64(numCNAMERecords))
+
+	if numARecords > 0 {
+		log.Debugf("Lookup of %s at %s successful", domain, nameServer)
+		prom.lookupSuccess.WithLabelValues(nameServer, domain).Set(1)
+	} else {
+		log.Infof("Lookup of %s returned no A records", domain)
+		prom.lookupSuccess.WithLabelValues(nameServer, domain).Set(0)
 	}
 	return
 }
@@ -58,25 +103,12 @@ func dnsALookup(nameServer, hostName string) (result LookupResult, err error) {
 func iterDomains() {
 	for dom, params := range cfg.Resolve {
 		for _, ns := range params.Nameservers {
-			result, err := dnsALookup(ns, dom)
+			err := dnsALookup(ns, dom)
 			if err != nil {
 				log.Warnf("Lookup Error for %s: %v", dom, err)
-				prom.resolverResponse.WithLabelValues(ns).Set(0)
 				continue
 			}
-			log.Debugf("Nameserver %s responded with RTT: %fs", ns, result.Rtt.Seconds())
-			prom.resolverResponse.WithLabelValues(ns).Set(1)
-			prom.resolverRTT.WithLabelValues(ns).Set(result.Rtt.Seconds())
-			// Record a success here for the nameserver.  No error so it has responded.
-			if result.Success {
-				log.Debugf("Lookup of %s at %s successful", dom, ns)
-				prom.lookupSuccess.WithLabelValues(ns, dom).Set(1)
-			} else {
-				log.Infof("Lookup of %s returned no answers", dom)
-				prom.lookupSuccess.WithLabelValues(ns, dom).Set(0)
-			}
-			prom.lookupNumAnswers.WithLabelValues(ns, dom, "A").Set(float64(result.NumAnswersA))
-			prom.lookupNumAnswers.WithLabelValues(ns, dom, "CNAME").Set(float64(result.NumAnswersCNAME))
+
 		} // End of Nameservers loop
 	} // End of Domains loop
 }
