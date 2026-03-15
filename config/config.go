@@ -18,7 +18,7 @@ type ResolveItem struct {
 	Nameservers []string `yaml:"nameservers"`
 }
 
-// Config contains the njmon_exporter configuration data
+// Config contains the dns_exporter configuration data
 type Config struct {
 	Logging struct {
 		Journal  bool   `yaml:"journal"`
@@ -80,7 +80,7 @@ func ParseConfig(filename string) (*Config, error) {
 // standard format: --foo=bar
 func ParseFlags() *Flags {
 	f := new(Flags)
-	flag.StringVar(&f.Config, "config", "njmon_exporter.yml", "Path to njmon_exporter configuration file")
+	flag.StringVar(&f.Config, "config", "config.yml", "Path to dns_exporter configuration file")
 	flag.BoolVar(&f.Debug, "debug", false, "Expand logging with Debug level messaging and format")
 	flag.Parse()
 	return f
